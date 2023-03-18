@@ -1,5 +1,6 @@
 import inquirer, { ChoiceOptions } from 'inquirer'
 import 'colors'
+import Task from '../models/task.js'
 
 export enum MENU_OPTIONS {
   EXIT,
@@ -20,26 +21,28 @@ const optionsList = [
   'Borrar tarea',
 ]
 
-const mapOptions = (options: string[]): ChoiceOptions[] => {
-  const mappedOptions = options.map((item, index) => ({
-    name: `${((index + 1).toString() + '.').green} ${item}`,
-    value: index + 1,
-  }))
-
-  mappedOptions.push({
-    name: `${'0.'.green} Salir`,
-    value: 0,
-  })
-
-  return mappedOptions
+const mapOptions = (
+  label: string,
+  index: number,
+  value?: unknown
+): ChoiceOptions => {
+  const idx = `${index + 1}.`.green
+  return {
+    name: `${idx} ${label}`,
+    value: value || index + 1,
+  }
 }
-
 export const inquirerMenu = async (): Promise<number> => {
   console.clear()
-  const options = mapOptions(optionsList)
   console.log('='.repeat(27).green)
   console.log('   Selecciona una opción   '.green)
   console.log('='.repeat(27).green, '\n')
+
+  const options = optionsList.map((label, idx) => mapOptions(label, idx))
+  options.push({
+    name: `${'0.'.green} Salir`,
+    value: 0,
+  })
 
   const { option } = await inquirer.prompt({
     type: 'list',
@@ -63,6 +66,19 @@ export const getUserInput = async (message: string): Promise<string> => {
   })
 
   return taskDesc
+}
+
+export const deleteTaskPrompt = async (list: Task[]) => {
+  const choices = list.map(({ desc, id }, idx) => mapOptions(desc, idx, id))
+
+  const { id } = await inquirer.prompt({
+    type: 'list',
+    name: 'id',
+    message: 'Borrar',
+    choices,
+  })
+
+  return id
 }
 
 export const inquirerPause = async (): Promise<void> => {

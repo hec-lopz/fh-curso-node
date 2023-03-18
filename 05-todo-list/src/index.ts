@@ -1,4 +1,5 @@
 import {
+  deleteTaskPrompt,
   getUserInput,
   inquirerMenu,
   inquirerPause,
@@ -10,6 +11,7 @@ import Tasks from './models/tasks.js'
 async function main() {
   let option: number
   let taskDesc: string
+  let taskId: string
 
   const tasks = new Tasks()
   const tasksFromDb = readDb()
@@ -27,7 +29,19 @@ async function main() {
         tasks.add(taskDesc)
         break
       case MENU_OPTIONS.LIST_TASKS:
-        console.log(tasks.listArray)
+        tasks.printList()
+        break
+
+      case MENU_OPTIONS.LIST_COMPLETED:
+        tasks.printFiltered(true)
+        break
+      case MENU_OPTIONS.LIST_PENDING:
+        tasks.printFiltered(false)
+        break
+
+      case MENU_OPTIONS.DELETE_TASK:
+        taskId = await deleteTaskPrompt(tasks.listArray)
+        tasks.deleteTask(taskId)
         break
 
       default:
@@ -36,7 +50,10 @@ async function main() {
 
     saveDb(tasks.listArray)
 
-    if (option !== 0) await inquirerPause()
+    if (option !== 0) {
+      console.log('\n')
+      await inquirerPause()
+    }
   } while (option !== 0)
 }
 
