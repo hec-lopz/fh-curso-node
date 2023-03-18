@@ -1,6 +1,16 @@
 import inquirer, { ChoiceOptions } from 'inquirer'
 import 'colors'
 
+export enum MENU_OPTIONS {
+  EXIT,
+  CREATE_TASK,
+  LIST_TASKS,
+  LIST_COMPLETED,
+  LIST_PENDING,
+  COMPLETE_TASK,
+  DELETE_TASK,
+}
+
 const optionsList = [
   'Crear tarea',
   'Listar tareas',
@@ -34,11 +44,25 @@ export const inquirerMenu = async (): Promise<number> => {
   const { option } = await inquirer.prompt({
     type: 'list',
     name: 'option',
-    message: 'Select an option',
+    message: 'Selecciona una opción',
     choices: options,
   })
 
   return option
+}
+
+export const getUserInput = async (message: string): Promise<string> => {
+  const { taskDesc } = await inquirer.prompt({
+    type: 'input',
+    name: 'taskDesc',
+    message,
+    validate(value: string) {
+      if (value.length === 0) return 'Por favor ingresa un valor'
+      return true
+    },
+  })
+
+  return taskDesc
 }
 
 export const inquirerPause = async (): Promise<void> => {
