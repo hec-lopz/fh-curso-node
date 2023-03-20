@@ -3,13 +3,13 @@ import { v4 as uuidV4 } from 'uuid'
 interface ITask {
   id: string
   desc: string
-  completedAt: Date | null
+  completedAt: string | null
 }
 
 export default class Task implements ITask {
   id: string
   desc: string
-  completedAt: Date | null
+  completedAt: string | null
 
   constructor(data: string | ITask) {
     if (typeof data === 'string') {

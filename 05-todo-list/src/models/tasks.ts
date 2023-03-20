@@ -23,7 +23,7 @@ export default class Tasks {
       console.log(`  ${index} ${desc} :: ${status}`)
     }
 
-    if (list?.length === 0) {
+    if (list?.length === 0 || this.listArray.length === 0) {
       console.log('  No hay tareas para mostrar')
       return
     }
@@ -35,11 +35,34 @@ export default class Tasks {
       (task) => !completed === !task.completedAt
     )
 
-    this.printList(filteredList)
+    if (completed) {
+      this.printCompletedTasks(filteredList)
+    } else {
+      this.printList(filteredList)
+    }
+  }
+  printCompletedTasks(list: Task[]) {
+    list.forEach((task, idx) => {
+      const index = `${idx + 1}.`.green
+      const { desc, completedAt } = task
+      const status = completedAt?.green
+
+      console.log(`${index} ${desc} :: ${status}`)
+    })
   }
   add(description: Task['desc']) {
     const newTask = new Task(description)
     this._list[newTask.id] = newTask
+  }
+
+  toggleCompletedTasks(idArr: Task['id'][]) {
+    this.listArray.forEach((task) => {
+      if (idArr.includes(task.id)) {
+        task.completedAt = new Date().toISOString()
+      } else {
+        task.completedAt = null
+      }
+    })
   }
 
   deleteTask(id: Task['id']) {

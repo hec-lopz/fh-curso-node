@@ -1,5 +1,7 @@
 import {
+  completeMultipleTasksPrompt,
   deleteTaskPrompt,
+  getUserConfirmation,
   getUserInput,
   inquirerMenu,
   inquirerPause,
@@ -12,6 +14,8 @@ async function main() {
   let option: number
   let taskDesc: string
   let taskId: string
+  let confirmDeletion: boolean | null = null
+  let completedIds
 
   const tasks = new Tasks()
   const tasksFromDb = readDb()
@@ -38,10 +42,20 @@ async function main() {
       case MENU_OPTIONS.LIST_PENDING:
         tasks.printFiltered(false)
         break
+      case MENU_OPTIONS.COMPLETE_TASK:
+        completedIds = await completeMultipleTasksPrompt(tasks.listArray)
+        tasks.toggleCompletedTasks(completedIds)
+        break
 
       case MENU_OPTIONS.DELETE_TASK:
         taskId = await deleteTaskPrompt(tasks.listArray)
-        tasks.deleteTask(taskId)
+
+        if (taskId && taskId !== '0') {
+          confirmDeletion = await getUserConfirmation('Estas seguro?')
+        }
+
+        if (confirmDeletion && taskId !== '0') tasks.deleteTask(taskId)
+
         break
 
       default:
